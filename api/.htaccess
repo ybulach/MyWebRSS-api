@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	
+	# Force HTTPS
+	#RewriteCond %{SERVER_PORT} 80 
+	#RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R,L]
+	
+	# Feeds rewrites
+	RewriteRule ^feed/list$ /mywebrss/api/listFeeds.php [L]
+	RewriteRule ^feed/show$ /mywebrss/api/showFeed.php [L]
+	RewriteRule ^feed/add$ /mywebrss/api/addFeed.php [L]
+	RewriteRule ^feed/delete$ /mywebrss/api/deleteFeed.php [L]
+	
+	# Articles rewrites
+	RewriteRule ^article/unread$ /mywebrss/api/showUnread.php [L]
+	RewriteRule ^article/show$ /mywebrss/api/showArticle.php [L]
+	
+	# Users rewrites
+	RewriteRule ^user/signin$ /mywebrss/api/signin.php [L]
+	RewriteRule ^user/login$ /mywebrss/api/login.php [L]
+	RewriteRule ^user/logout$ /mywebrss/api/logout.php [L]
+	RewriteRule ^user/password$ /mywebrss/api/changePassword.php [L]
+</IfModule>
