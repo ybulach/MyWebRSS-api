@@ -85,14 +85,20 @@ function check_email($email) {
 // Check a Token
 function check_token($token) {
 	global $mysql;
+	
+	if(!isset($_GET["token"]) || !check_arg($_GET["token"], "#^[a-z0-9]+$#", 40, 40))
+		throw new Exception("token");
+	
 	// Try to find the Token
 	$select = $mysql->prepare("SELECT user_ref FROM tokens WHERE token_id=:token LIMIT 1");
 	$select->bindParam(":token", $token);
-	
 	$success = $select->execute();
+	if(!$success)
+		throw new Exception("Could not get the account informations. Try again later");
+	
 	$result = $select->fetch();
-	if(!$success || !$result)
-		return null;
+	if(!$result)
+		throw new Exception("token");
 	
 	$id = $result["user_ref"];
 	

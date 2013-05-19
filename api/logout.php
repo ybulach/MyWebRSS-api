@@ -3,8 +3,7 @@ require_once("lib.php");
 
 try {
 	// Check the arguments
-	if(!isset($_GET["token"]) || !check_arg($_GET["token"], "#^[a-z0-9]+$#", 40, 40))
-		throw new Exception("token");
+	check_token($_GET["token"]);
 	
 	$token = $_GET["token"];
 	
