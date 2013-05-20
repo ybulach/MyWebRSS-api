@@ -4,11 +4,16 @@
 require_once("lib.php");
 
 // Get the element value or return $default_value
-function get_xml_value($element, $default_value) {
+function get_xml_item($element) {
 	if(!$element->length)
-		return $default_value;
+		return null;
 	
-	return $element->item(0)->nodeValue;
+	return $element->item(0);
+}
+
+function get_xml_value($element, $default_value) {
+	$value = get_xml_item($element);
+	return $value ? $value->nodeValue : $default_value;
 }
 
 try {
@@ -40,9 +45,10 @@ try {
 		// Refresh the feed properties
 		$feed_title = get_xml_value($dom->getElementsByTagName("title"), "No title");
 		$feed_description = get_xml_value($dom->getElementsByTagName("description"), "No description");
-		$date = strtotime(get_xml_value($dom->getElementsByTagName("lastBuildDate"), 0));
+		$date = get_xml_value($dom->getElementsByTagName("lastBuildDate"), "");
 		if(!$date)
-			$date = strtotime(get_xml_value($dom->getElementsByTagName("updated"), 0));
+			$date = get_xml_value($dom->getElementsByTagName("updated"), "");
+		$date = strtotime($date);
 		
 		// Refresh every 5 minutes if the RSS doesn't give a date
 		if(!$date) {
@@ -56,7 +62,7 @@ try {
 		$feed_date = time();
 		
 		// Get the last article GUID
-		$select2 = $mysql->prepare("SELECT article_guid FROM articles WHERE feed_ref=:id ORDER BY article_date DESC");
+		$select2 = $mysql->prepare("SELECT article_guid FROM articles WHERE feed_ref=:id ORDER BY article_id DESC");
 		$select2->bindParam(":id", $feed_id);
 		
 		if(!$select2->execute())
@@ -80,18 +86,35 @@ try {
 				break;
 			
 			// Get the values
-			$article_url = get_xml_value($article->getElementsByTagName("link"), "");
 			$article_title = get_xml_value($article->getElementsByTagName("title"), "No title");
+			$article_image = get_xml_value($article->getElementsByTagName("image"), "");
+			
+			// <link>
+			$url = get_xml_item($article->getElementsByTagName("link"));
+			if($url) {
+				$article_url = $url->nodeValue;
+				if(!$article_url && $url->hasAttribute("href"))
+					// <link href="">
+					$article_url = $url->hasAttribute("href");
+			}
+			
+			// <description>
 			$article_description = get_xml_value($article->getElementsByTagName("description"), "");
 			if(!$article_description)
+				// <content>
 				$article_description = get_xml_value($article->getElementsByTagName("content"), "");
 			
-			$article_image = get_xml_value($article->getElementsByTagName("image"), "");
-			$article_date = strtotime(get_xml_value($article->getElementsByTagName("pubDate"), 0));
+			// <pubDate>
+			$article_date = get_xml_value($article->getElementsByTagName("pubDate"), "");
 			if(!$article_date)
-				$article_date = strtotime(get_xml_value($article->getElementsByTagNameNS("http://www.w3.org/2005/Atom", "updated"), 0));
+				// <a10:updated>
+				$article_date = get_xml_value($article->getElementsByTagNameNS("http://www.w3.org/2005/Atom", "updated"), "");
 			if(!$article_date)
-				$article_date = strtotime(get_xml_value($article->getElementsByTagName("updated"), 0));
+				// <updated>
+				$article_date = get_xml_value($article->getElementsByTagName("updated"), "");
+			
+			if($article_date)
+				$article_date = strtotime($article_date);
 			
 			// Check if the article exists
 			$select2 = $mysql->prepare("SELECT article_id FROM articles WHERE article_guid=:guid AND feed_ref=:feed");
@@ -147,7 +170,7 @@ try {
 		$update->bindParam(":id", $feed_id);
 		
 		if(!$update->execute())
-			send_warning("Could not update the feed ".$id);
+			send_warning("Could not update the feed ".$feed_id);
 	}
 }
 catch( Exception $e ){
