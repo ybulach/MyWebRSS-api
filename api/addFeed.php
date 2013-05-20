@@ -5,7 +5,7 @@ try {
 	// Check the arguments
 	$user = check_token($_GET["token"]);
 	
-	if(!isset($_GET["feed"]) || !check_arg($_GET["feed"], "#^http\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(/\S*)?$#", 7, 255))
+	if(!isset($_GET["feed"]) || !check_arg($_GET["feed"], "#^(http|https)\://[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(/\S*)?$#", 7, 255))
 		throw new Exception("feed");
 	
 	// Check if the feed exists
