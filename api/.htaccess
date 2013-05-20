@@ -2,22 +2,26 @@
 	RewriteEngine On
 	
 	# Force HTTPS
-	#RewriteCond %{SERVER_PORT} 80 
-	#RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R,L]
+	RewriteCond %{SERVER_PORT} 80 
+	RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R,L]
 	
 	# Feeds rewrites
-	RewriteRule ^feed/list$ /mywebrss/api/listFeeds.php [L]
-	RewriteRule ^feed/show$ /mywebrss/api/showFeed.php [L]
-	RewriteRule ^feed/add$ /mywebrss/api/addFeed.php [L]
-	RewriteRule ^feed/delete$ /mywebrss/api/deleteFeed.php [L]
+	RewriteRule ^feed/list$ listFeeds.php [L]
+	RewriteRule ^feed/show$ showFeed.php [L]
+	RewriteRule ^feed/add$ addFeed.php [L]
+	RewriteRule ^feed/delete$ deleteFeed.php [L]
 	
 	# Articles rewrites
-	RewriteRule ^article/unread$ /mywebrss/api/showUnread.php [L]
-	RewriteRule ^article/show$ /mywebrss/api/showArticle.php [L]
+	RewriteRule ^article/unread$ showUnread.php [L]
+	RewriteRule ^article/show$ showArticle.php [L]
 	
 	# Users rewrites
-	RewriteRule ^user/signin$ /mywebrss/api/signin.php [L]
-	RewriteRule ^user/login$ /mywebrss/api/login.php [L]
-	RewriteRule ^user/logout$ /mywebrss/api/logout.php [L]
-	RewriteRule ^user/password$ /mywebrss/api/changePassword.php [L]
+	RewriteRule ^user/signin$ signin.php [L]
+	RewriteRule ^user/login$ login.php [L]
+	RewriteRule ^user/logout$ logout.php [L]
+	RewriteRule ^user/password$ changePassword.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+	Header set Access-Control-Allow-Origin "*"
 </IfModule>
