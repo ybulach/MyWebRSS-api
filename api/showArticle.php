@@ -21,7 +21,7 @@ try {
 	if(!$result)
 		throw new Exception("article");
 	
-	$result["date"] = date("d-m-Y H:i:s", $article["date"]);
+	$result["date"] = date("d-m-Y H:i:s", $result["date"]);
 	$json_result["result"] = $result;
 	
 	// Mark the article as read
