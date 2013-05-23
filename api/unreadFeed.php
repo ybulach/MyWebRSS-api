@@ -5,13 +5,18 @@ try {
 	// Check the arguments
 	$user = check_token($_GET["token"]);
 	
-	if(!isset($_GET["feed"]) || !check_arg($_GET["feed"], "#^[0-9]+$#", 1, 10))
+	if(!isset($_GET["feed"]) || (($_GET["feed"] != 0) && !check_arg($_GET["feed"], "#^[0-9]+$#", 1, 10)))
 		throw new Exception("feed");
 	$feed = $_GET["feed"];
 	
 	// Mark the articles as read
-	$delete = $mysql->prepare("DELETE FROM user_articles WHERE user_ref=:user AND article_ref IN (SELECT DISTINCT article_id AS article_ref FROM articles WHERE feed_ref=:feed)");
-	$delete->bindParam(":feed", $feed);
+	$sql = "DELETE FROM user_articles WHERE user_ref=:user AND article_ref IN (SELECT DISTINCT article_id AS article_ref FROM articles)";
+	if($feed)
+		$sql = "DELETE FROM user_articles WHERE user_ref=:user AND article_ref IN (SELECT DISTINCT article_id AS article_ref FROM articles WHERE feed_ref=:feed)";
+	
+	$delete = $mysql->prepare($sql);
+	if($feed)
+		$delete->bindParam(":feed", $feed);
 	$delete->bindParam(":user", $user);
 	$delete->execute();
 	
