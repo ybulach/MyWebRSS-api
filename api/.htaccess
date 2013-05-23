@@ -10,9 +10,9 @@
 	RewriteRule ^feed/show$ showFeed.php [L]
 	RewriteRule ^feed/add$ addFeed.php [L]
 	RewriteRule ^feed/delete$ deleteFeed.php [L]
+	RewriteRule ^feed/unread$ unreadFeed.php [L]
 	
 	# Articles rewrites
-	RewriteRule ^article/unread$ showUnread.php [L]
 	RewriteRule ^article/show$ showArticle.php [L]
 	
 	# Users rewrites
