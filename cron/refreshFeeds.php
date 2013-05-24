@@ -20,7 +20,6 @@ try {
 	// List the older feeds (that hasn't been loaded since 5 minutes)
 	$date = time() - 60*5;
 	$select = $mysql->prepare("SELECT feed_id, feed_url, feed_date FROM feeds WHERE feed_date < :date ORDER BY feed_date ASC");
-	//$select = $mysql->prepare("SELECT feed_id, feed_url, feed_date FROM feeds ORDER BY feed_date ASC");
 	$select->bindParam(":date", $date);
 	
 	if(!$select->execute())
@@ -45,49 +44,37 @@ try {
 		// Refresh the feed properties
 		$feed_title = get_xml_value($dom->getElementsByTagName("title"), "No title");
 		$feed_description = get_xml_value($dom->getElementsByTagName("description"), "No description");
-		$date = get_xml_value($dom->getElementsByTagName("lastBuildDate"), "");
-		if(!$date)
-			$date = get_xml_value($dom->getElementsByTagName("updated"), "");
-		$date = strtotime($date);
-		
-		// Refresh every 5 minutes if the RSS doesn't give a date
-		if(!$date) {
-			$date = time();
-			$feed_date += 60*5;
-		}
-		
-		// Only refresh if it has been rebuilded
-		if($date <= $feed_date)
-			continue;
-		$feed_date = time();
-		
-		// Get the last article GUID
-		$select2 = $mysql->prepare("SELECT article_guid FROM articles WHERE feed_ref=:id ORDER BY article_id DESC");
-		$select2->bindParam(":id", $feed_id);
-		
-		if(!$select2->execute())
-			send_warning("Could not get the last article for ".$id);
-		
-		$result2 = $select2->fetch();
-		$guid = $result2["article_guid"];
 		
 		// Get all the articles in the RSS
 		$articles = $dom->getElementsByTagName("item");
 		if(!$articles->length)
 			$articles = $dom->getElementsByTagName("entry");
 		
+		$max_age = time() - 60*60*24*$MAX_ARTICLE_AGE;
 		foreach($articles as $article) {
-			// Only add new articles
-			$article_guid = get_xml_value($article->getElementsByTagName("guid"), "");
-			if(!$article_guid)
-				$article_guid = get_xml_value($article->getElementsByTagName("id"), "");
-			
-			if($article_guid == $guid)
-				break;
-			
 			// Get the values
 			$article_title = get_xml_value($article->getElementsByTagName("title"), "No title");
 			$article_image = get_xml_value($article->getElementsByTagName("image"), "");
+			
+			// <pubDate>
+			$article_date = get_xml_value($article->getElementsByTagName("pubDate"), "");
+			if(!$article_date)
+				// <a10:updated>
+				$article_date = get_xml_value($article->getElementsByTagNameNS("http://www.w3.org/2005/Atom", "updated"), "");
+			if(!$article_date)
+				// <updated>
+				$article_date = get_xml_value($article->getElementsByTagName("updated"), "");
+			$article_date = strtotime($article_date);
+			
+			// Don't handle old articles
+			if($article_date < $max_age)
+				break;
+			
+			// <guid>
+			$article_guid = get_xml_value($article->getElementsByTagName("guid"), "");
+			if(!$article_guid)
+				// <id>
+				$article_guid = get_xml_value($article->getElementsByTagName("id"), "");
 			
 			// <link>
 			$url = get_xml_item($article->getElementsByTagName("link"));
@@ -103,18 +90,6 @@ try {
 			if(!$article_description)
 				// <content>
 				$article_description = get_xml_value($article->getElementsByTagName("content"), "");
-			
-			// <pubDate>
-			$article_date = get_xml_value($article->getElementsByTagName("pubDate"), "");
-			if(!$article_date)
-				// <a10:updated>
-				$article_date = get_xml_value($article->getElementsByTagNameNS("http://www.w3.org/2005/Atom", "updated"), "");
-			if(!$article_date)
-				// <updated>
-				$article_date = get_xml_value($article->getElementsByTagName("updated"), "");
-			
-			if($article_date)
-				$article_date = strtotime($article_date);
 			
 			// Check if the article exists
 			$select2 = $mysql->prepare("SELECT article_id FROM articles WHERE article_guid=:guid AND feed_ref=:feed");
@@ -166,7 +141,7 @@ try {
 		$update = $mysql->prepare("UPDATE feeds SET feed_title=:title, feed_description=:description, feed_date=:date WHERE feed_id=:id");
 		$update->bindParam(":title", $feed_title);
 		$update->bindParam(":description", $feed_description);
-		$update->bindParam(":date", $feed_date);
+		$update->bindParam(":date", time());
 		$update->bindParam(":id", $feed_id);
 		
 		if(!$update->execute())
