@@ -5,7 +5,6 @@ require_once("lib.php");
 
 try {
 	// Delete the unused feeds
-	$date = time();
 	$delete = $mysql->query("DELETE FROM feeds WHERE feed_id NOT IN (SELECT DISTINCT feed_ref AS feed_id FROM user_feeds)");
 	
 	if(!$delete)
