@@ -6,7 +6,7 @@ require_once("lib.php");
 try {
 	// Delete the unused feeds
 	$date = date("Y-m-d_H-i-s");
-	exec($mysqldump." --user=".$mysql_user." --password=".$mysql_pass." --host=".$mysql_host." ".$mysql_base." > backups/".$date);
+	exec($mysqldump." --user=".$mysql_user." --password=".$mysql_pass." --host=".$mysql_host." ".$mysql_base." > ".$backups_dir."/".$date);
 }
 catch( Exception $e ){
 	send_error($e->getMessage());
