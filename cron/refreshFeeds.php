@@ -82,7 +82,7 @@ try {
 				$article_url = $url->nodeValue;
 				if(!$article_url && $url->hasAttribute("href"))
 					// <link href="">
-					$article_url = $url->hasAttribute("href");
+					$article_url = $url->getAttribute("href");
 			}
 			
 			// <description>
