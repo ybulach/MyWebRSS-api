@@ -25,7 +25,7 @@ try {
 	if(!$select->execute())
 		throw new Exception("Can not verify the old password. Try again later");
 	
-	if($select->fetch())
+	if(!$select->fetch())
 		throw new Exception("old_password");
 	
 	// Create the hashed + salted password
