@@ -18,9 +18,10 @@ try {
 		throw new Exception("confirm_password");
 	
 	// Verify the password
+	$old_password = sha1($_GET["old_password"].$password_salt);
 	$select = $mysql->prepare("SELECT user_id FROM users WHERE user_id=:user AND user_pass=:pass");
 	$select->bindParam(":user", $user);
-	$select->bindParam(":pass", $_GET["old_password"]);
+	$select->bindParam(":pass", $old_password);
 	
 	if(!$select->execute())
 		throw new Exception("Can not verify the old password. Try again later");
