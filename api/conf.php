@@ -5,5 +5,6 @@ $mysql_user = "root";
 $mysql_pass = "";
 $mysql_base = "mywebrss";
 
-$ARTICLES_PER_PAGE = 20;
+$password_salt = "mywebrss";
+$articles_per_page = 20;
 ?>

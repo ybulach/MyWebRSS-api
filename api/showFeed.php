@@ -14,7 +14,7 @@ try {
 		if(!check_arg($_GET["page"], "#^[0-9]+$#", 1, 10))
 			throw new Exception("page");
 		
-		$page = $_GET["page"] * $ARTICLES_PER_PAGE;
+		$page = $_GET["page"] * $articles_per_page;
 	}
 	
 	// Get the articles of the feed
@@ -29,7 +29,7 @@ try {
 	if($feed)
 		$select->bindParam(":feed", $feed);
 	$select->bindParam(":page", $page, PDO::PARAM_INT);
-	$select->bindParam(":max", $ARTICLES_PER_PAGE, PDO::PARAM_INT);
+	$select->bindParam(":max", $articles_per_page, PDO::PARAM_INT);
 	
 	if(!$select->execute())
 		throw new Exception("Could not list articles. Try again later");
