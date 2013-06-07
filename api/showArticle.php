@@ -10,7 +10,7 @@ try {
 	$article = $_GET["article"];
 	
 	// Get the article
-	$select = $mysql->prepare("SELECT article_id as id, article_title as title, article_description as description, article_url as url, article_image as image, article_date as date, articles.feed_ref as feed FROM user_feeds INNER JOIN feeds ON user_feeds.feed_ref=feed_id INNER JOIN articles ON articles.feed_ref=feed_id WHERE article_id=:article AND user_ref=:user");
+	$select = $mysql->prepare("SELECT article_id as id, article_title as title, article_description as description, article_url as url, article_image as image, article_date as date, feeds.feed_title as feed FROM user_feeds INNER JOIN feeds ON user_feeds.feed_ref=feed_id INNER JOIN articles ON articles.feed_ref=feed_id WHERE article_id=:article AND user_ref=:user");
 	$select->bindParam(":article", $article);
 	$select->bindParam(":user", $user);
 	
