@@ -33,13 +33,20 @@ try {
 		
 		send_warning($feed_url);
 		
-		// Get the XML file
+		// Get the XML file and check RSS
 		$dom = new DomDocument();
-		$dom->load($feed_url);
-		
-		// Check RSS
-		if(!$dom->getElementsByTagName("rss")->length && !$dom->getElementsByTagName("feed")->length)
+		if(!$dom->load($feed_url) || (!$dom->getElementsByTagName("rss")->length && !$dom->getElementsByTagName("feed")->length)) {
+			// Show an error if not updated since at least 2 hours
+			if($feed_date < time() - 60*60*2) {
+				$update = $mysql->prepare("UPDATE feeds SET feed_title='**NOT AN RSS FEED**', feed_description='This feed returns errors for more than 2 hours' WHERE feed_id=:id");
+				$update->bindParam(":id", $feed_id);
+				
+				if(!$update->execute())
+					send_warning("Could not update the feed ".$feed_id);
+			}
+			
 			continue;
+		}
 		
 		// Refresh the feed properties
 		$feed_title = get_xml_value($dom->getElementsByTagName("title"), "No title");
