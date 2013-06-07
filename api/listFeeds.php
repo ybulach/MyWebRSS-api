@@ -15,20 +15,18 @@ try {
 	$json_result["result"] = $select->fetchAll(PDO::FETCH_ASSOC);
 	
 	// Add the unread articles count
-	for($i = 0; $i < $count($json_result["result"]); $i++) {
+	for($i = 0; $i < count($json_result["result"]); $i++) {
 		$json_result["result"][$i]["unread"] = 0;
 		
-		$select = $mysql->prepare("SELECT COUNT(feed_ref) as unread FROM user_articles INNER JOIN articles ON article_id=article_ref WHERE user_ref=:user AND feed_ref=:feed");
-		$select->bindParam(":user", $user);
-		$select->bindParam(":feed", $json_result["result"][$i]["id"]);
+		$select2 = $mysql->prepare("SELECT COUNT(feed_ref) as unread FROM user_articles INNER JOIN articles ON article_id=article_ref WHERE user_ref=:user AND feed_ref=:feed");
+		$select2->bindParam(":user", $user);
+		$select2->bindParam(":feed", $json_result["result"][$i]["id"]);
 		
-		if($select->execute()) {
-			$unread = $select->fetch();
+		if($select2->execute()) {
+			$unread = $select2->fetch();
 			
-			if($unread) {
-				$unread = $unread["unread"];
-				$json_result["result"][$i]["unread"] = $unread;
-			}
+			if($unread)
+				$json_result["result"][$i]["unread"] = $unread["unread"];
 		}
 	}
 }
