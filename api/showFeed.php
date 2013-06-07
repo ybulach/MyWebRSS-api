@@ -11,7 +11,7 @@ try {
 	
 	$page = 0;
 	if(isset($_GET["page"])) {
-		if(!check_arg($_GET["page"], "#^[0-9]+$#", 1, 10))
+		if(($_GET["page"] != 0) && !check_arg($_GET["page"], "#^[0-9]+$#", 1, 10))
 			throw new Exception("page");
 		
 		$page = $_GET["page"] * $articles_per_page;
