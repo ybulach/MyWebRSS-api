@@ -9,12 +9,20 @@ try {
 		throw new Exception("feed");
 	$feed = $_GET["feed"];
 	
+	$articles_count = 20;
+	if(isset($_GET["articles_count"])) {
+		if(($_GET["articles_count"] != 0) && !check_arg($_GET["articles_count"], "#^[0-9]+$#", 1, 10))
+			throw new Exception("articles_count");
+		
+		$articles_count = $_GET["articles_count"];
+	}
+	
 	$page = 0;
 	if(isset($_GET["page"])) {
 		if(($_GET["page"] != 0) && !check_arg($_GET["page"], "#^[0-9]+$#", 1, 10))
 			throw new Exception("page");
 		
-		$page = $_GET["page"] * $articles_per_page;
+		$page = $_GET["page"] * $articles_count;
 	}
 	
 	// Get the articles of the feed
@@ -29,12 +37,18 @@ try {
 	if($feed)
 		$select->bindParam(":feed", $feed);
 	$select->bindParam(":page", $page, PDO::PARAM_INT);
-	$select->bindParam(":max", $articles_per_page, PDO::PARAM_INT);
+	$select->bindParam(":max", $articles_count, PDO::PARAM_INT);
 	
 	if(!$select->execute())
 		throw new Exception("Could not list articles. Try again later");
 	
 	$result = $select->fetchAll(PDO::FETCH_ASSOC);
+	
+	// Add the feed name
+	if(count($result) > 0) {
+		$json_result["feed"] = $result[0]["feed"];
+	}
+	
 	$json_result["result"] = array();
 	foreach($result as $article) {
 		$article["date"] = date("d-m-Y H:i:s", $article["date"]);
