@@ -14,7 +14,7 @@ try {
 		if(($_GET["articles_count"] != 0) && !check_arg($_GET["articles_count"], "#^[0-9]+$#", 1, 10))
 			throw new Exception("articles_count");
 		
-		$articles_count = $_GET["articles_count"];
+		$articles_count = intval($_GET["articles_count"]);
 	}
 	
 	$page = 0;
