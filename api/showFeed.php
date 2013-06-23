@@ -45,7 +45,7 @@ try {
 	$result = $select->fetchAll(PDO::FETCH_ASSOC);
 	
 	// Add the feed name
-	if(count($result) > 0) {
+	if($feed && (count($result) > 0)) {
 		$json_result["feed"] = $result[0]["feed"];
 	}
 	
