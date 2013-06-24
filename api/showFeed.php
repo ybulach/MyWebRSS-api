@@ -52,6 +52,8 @@ try {
 	$json_result["result"] = array();
 	foreach($result as $article) {
 		$article["date"] = date("d-m-Y H:i:s", $article["date"]);
+		$article["title"] = htmlspecialchars($article["title"]);
+		$article["feed"] = htmlspecialchars($article["feed"]);
 		
 		if($feed) {
 			// Check the status (read or not)

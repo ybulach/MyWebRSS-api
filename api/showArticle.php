@@ -22,6 +22,8 @@ try {
 		throw new Exception("article");
 	
 	$result["date"] = date("d-m-Y H:i:s", $result["date"]);
+	$result["title"] = htmlspecialchars($result["title"]);
+	$result["feed"] = htmlspecialchars($result["feed"]);
 	$json_result["result"] = $result;
 	
 	// Mark the article as read
