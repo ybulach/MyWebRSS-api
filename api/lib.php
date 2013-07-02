@@ -86,7 +86,7 @@ function check_email($email) {
 function check_token($token) {
 	global $mysql;
 	
-	if(!isset($_GET["token"]) || !check_arg($_GET["token"], "#^[a-z0-9]+$#", 40, 40))
+	if(!check_arg($token, "#^[a-z0-9]+$#", 40, 40))
 		throw new Exception("token");
 	
 	// Try to find the Token
