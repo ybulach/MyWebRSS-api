@@ -9,6 +9,7 @@
 	RewriteRule ^feed/list$ listFeeds.php [L]
 	RewriteRule ^feed/show$ showFeed.php [L]
 	RewriteRule ^feed/add$ addFeed.php [L]
+	RewriteRule ^feed/import$ importFeeds.php [L]
 	RewriteRule ^feed/delete$ deleteFeed.php [L]
 	RewriteRule ^feed/unread$ unreadFeed.php [L]
 	
