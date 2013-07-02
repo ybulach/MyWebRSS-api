@@ -26,11 +26,11 @@ try {
 	}
 	
 	// Get the articles of the feed
-	$sql = "SELECT article_id as id, article_title as title, article_date as date, feeds.feed_title as feed FROM user_feeds INNER JOIN feeds ON user_feeds.feed_ref=feed_id INNER JOIN articles ON articles.feed_ref=feed_id WHERE user_ref=:user AND feed_id=:feed ORDER BY article_date DESC LIMIT :page,:max";
+	$sql = "SELECT article_id as id, article_title as title, article_date as date, feeds.feed_title as feed, article_image as image FROM user_feeds INNER JOIN feeds ON user_feeds.feed_ref=feed_id INNER JOIN articles ON articles.feed_ref=feed_id WHERE user_ref=:user AND feed_id=:feed ORDER BY article_date DESC LIMIT :page,:max";
 	
 	// Get the unread articles, for the home page
 	if(!$feed)
-		$sql = "SELECT article_id as id, article_title as title, article_date as date, feeds.feed_title as feed FROM user_feeds INNER JOIN feeds ON user_feeds.feed_ref=feed_id INNER JOIN articles ON articles.feed_ref=feed_id INNER JOIN user_articles ON article_id=article_ref AND user_feeds.user_ref=user_articles.user_ref WHERE user_feeds.user_ref=:user ORDER BY article_date DESC LIMIT :page,:max";
+		$sql = "SELECT article_id as id, article_title as title, article_date as date, feeds.feed_title as feed, article_image as image FROM user_feeds INNER JOIN feeds ON user_feeds.feed_ref=feed_id INNER JOIN articles ON articles.feed_ref=feed_id INNER JOIN user_articles ON article_id=article_ref AND user_feeds.user_ref=user_articles.user_ref WHERE user_feeds.user_ref=:user ORDER BY article_date DESC LIMIT :page,:max";
 	
 	$select = $mysql->prepare($sql);
 	$select->bindParam(":user", $user);
