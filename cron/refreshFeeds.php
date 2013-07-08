@@ -71,11 +71,15 @@ try {
 			if(!$article_date)
 				// <updated>
 				$article_date = get_xml_value($article->getElementsByTagName("updated"), "");
-			$article_date = strtotime($article_date);
+			
+			if(!$article_date)
+				$article_date = time();
+			else
+				$article_date = strtotime($article_date);
 			
 			// Don't handle old articles
-			if($article_date < $max_age)
-				break;
+			if($article_date && ($article_date < $max_age))
+				continue;
 			
 			// <guid>
 			$article_guid = get_xml_value($article->getElementsByTagName("guid"), "");
@@ -112,7 +116,7 @@ try {
 			$select2->execute();
 			
 			if($select2->fetch())
-				break;
+				continue;
 			
 			// Add the article
 			$insert = $mysql->prepare("INSERT INTO articles(article_id, article_url, feed_ref, article_guid, article_title, article_description, article_image, article_date) VALUES(NULL, :url, :feed, :guid, :title, :description, :image, :date)");
@@ -152,10 +156,11 @@ try {
 		}
 		
 		// Change the date of the feed
+		$date = time();
 		$update = $mysql->prepare("UPDATE feeds SET feed_title=:title, feed_description=:description, feed_date=:date WHERE feed_id=:id");
 		$update->bindParam(":title", $feed_title);
 		$update->bindParam(":description", $feed_description);
-		$update->bindParam(":date", time());
+		$update->bindParam(":date", $date);
 		$update->bindParam(":id", $feed_id);
 		
 		if(!$update->execute())
