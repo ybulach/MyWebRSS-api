@@ -96,11 +96,13 @@ try {
 					$article_url = $url->getAttribute("href");
 			}
 			
-			if(!$article_guid && $article_url)
-				$article_guid = $article_url;
-			else {
-				send_warning("error > $article_title = No GUID or URL");
-				continue;
+			if(!$article_guid) {
+				if($article_url)
+					$article_guid = $article_url;
+				else {
+					send_warning("error > $article_title = No GUID or URL");
+					continue;
+				}
 			}
 			
 			// <description>
