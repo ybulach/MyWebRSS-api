@@ -45,8 +45,20 @@ try {
 	$result = $select->fetchAll(PDO::FETCH_ASSOC);
 	
 	// Add the feed name
-	if($feed && (count($result) > 0)) {
-		$json_result["feed"] = $result[0]["feed"];
+	if($feed) {
+		if(count($result) > 0)
+			$json_result["feed"] = $result[0]["feed"];
+		else {
+			// Get the name from the database
+			$select = $mysql->prepare("SELECT feed_title as feed FROM feeds WHERE feed_id=:feed");
+			$select->bindParam(":feed", $feed);
+			$select->execute();
+			
+			if($feed_title = $select->fetch())
+				$json_result["feed"] = $feed_title[0]["feed"];
+			else
+				$json_result["feed"] = "Feed $feed not loaded";
+		}
 	}
 	
 	$json_result["result"] = array();
