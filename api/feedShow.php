@@ -55,7 +55,7 @@ try {
 			$select->execute();
 			
 			if($feed_title = $select->fetch())
-				$json_result["feed"] = $feed_title[0]["feed"];
+				$json_result["feed"] = $feed_title["feed"];
 			else
 				$json_result["feed"] = "Feed $feed not loaded";
 		}
