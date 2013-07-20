@@ -6,21 +6,20 @@
 	RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R,L]
 	
 	# Feeds rewrites
-	RewriteRule ^feed/list$ listFeeds.php [L]
-	RewriteRule ^feed/show$ showFeed.php [L]
-	RewriteRule ^feed/add$ addFeed.php [L]
-	RewriteRule ^feed/import$ importFeeds.php [L]
-	RewriteRule ^feed/delete$ deleteFeed.php [L]
-	RewriteRule ^feed/unread$ unreadFeed.php [L]
+	RewriteRule ^feed/add$ feedAdd.php [L]
+	RewriteRule ^feed/delete$ feedDelete.php [L]
+	RewriteRule ^feed/import$ feedImport.php [L]
+	RewriteRule ^feed/list$ feedList.php [L]
+	RewriteRule ^feed/show$ feedShow.php [L]
 	
 	# Articles rewrites
-	RewriteRule ^article/show$ showArticle.php [L]
+	RewriteRule ^article/unread$ articleUnread.php [L]
 	
 	# Users rewrites
-	RewriteRule ^user/signin$ signin.php [L]
-	RewriteRule ^user/login$ login.php [L]
-	RewriteRule ^user/logout$ logout.php [L]
-	RewriteRule ^user/password$ changePassword.php [L]
+	RewriteRule ^user/login$ userLogin.php [L]
+	RewriteRule ^user/logout$ userLogout.php [L]
+	RewriteRule ^user/password$ userPassword.php [L]
+	RewriteRule ^user/signin$ userSignin.php [L]
 </IfModule>
 
 <IfModule mod_headers.c>

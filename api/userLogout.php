@@ -12,8 +12,6 @@ try {
 	
 	if(!$delete->execute())
 		throw new Exception("Can not delete the Token. Try again later");
-	
-	$json_result["token"] = "";
 }
 catch( Exception $e ){
 	send_error($e->getMessage());
