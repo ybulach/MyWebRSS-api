@@ -36,14 +36,21 @@ try {
 		// Get the XML file and check RSS
 		$dom = new DomDocument();
 		if(!$dom->load($feed_url) || (!$dom->getElementsByTagName("rss")->length && !$dom->getElementsByTagName("feed")->length)) {
-			// Show an error if not updated since at least 2 hours
-			if($feed_date < time() - 60*60*2) {
-				$update = $mysql->prepare("UPDATE feeds SET feed_title='**NOT AN RSS FEED**', feed_description='This feed returns errors for more than 2 hours' WHERE feed_id=:id");
-				$update->bindParam(":id", $feed_id);
-				
-				if(!$update->execute())
-					send_warning("Could not update the feed ".$feed_id);
-			}
+			// Change the date, to only try again in 5+10 minutes
+			$date = time() + 60*10;
+			$sql = "UPDATE feeds SET feed_date=".$date;
+			
+			// Change the title if the feed has never been loaded
+			if($feed_date == 0)
+				$sql .= ", feed_title='**NOT AN RSS FEED**', feed_description='This feed returns errors for more than 2 hours'";
+			
+			$sql .= ", feed_error=1 WHERE feed_id=:id";
+			
+			$update = $mysql->prepare($sql);
+			$update->bindParam(":id", $feed_id);
+			
+			if(!$update->execute())
+				send_warning("Could not update the feed ".$feed_id);
 			
 			continue;
 		}
@@ -159,7 +166,7 @@ try {
 		
 		// Change the date of the feed
 		$date = time();
-		$update = $mysql->prepare("UPDATE feeds SET feed_title=:title, feed_description=:description, feed_date=:date WHERE feed_id=:id");
+		$update = $mysql->prepare("UPDATE feeds SET feed_title=:title, feed_description=:description, feed_date=:date, feed_error=1 WHERE feed_id=:id");
 		$update->bindParam(":title", $feed_title);
 		$update->bindParam(":description", $feed_description);
 		$update->bindParam(":date", $date);

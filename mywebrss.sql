@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `feed_title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `feed_description` text COLLATE utf8_unicode_ci NOT NULL,
   `feed_date` int(10) NOT NULL,
+  `feed_error` int(1) NOT NULL
   PRIMARY KEY (`feed_id`),
   UNIQUE KEY `feed_url` (`feed_url`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
