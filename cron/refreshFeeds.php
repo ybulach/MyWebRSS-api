@@ -166,7 +166,7 @@ try {
 		
 		// Change the date of the feed
 		$date = time();
-		$update = $mysql->prepare("UPDATE feeds SET feed_title=:title, feed_description=:description, feed_date=:date, feed_error=1 WHERE feed_id=:id");
+		$update = $mysql->prepare("UPDATE feeds SET feed_title=:title, feed_description=:description, feed_date=:date, feed_error=0 WHERE feed_id=:id");
 		$update->bindParam(":title", $feed_title);
 		$update->bindParam(":description", $feed_description);
 		$update->bindParam(":date", $date);
