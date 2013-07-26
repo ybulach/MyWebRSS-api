@@ -1,5 +1,5 @@
 <?php
-// Script to run every 5 minutes
+// Script to run every minutes
 ///////////////////////////////////////////////////////////////////////////////
 require_once("lib.php");
 
@@ -17,8 +17,8 @@ function get_xml_value($element, $default_value) {
 }
 
 try {
-	// List the older feeds (that hasn't been loaded since 5 minutes)
-	$date = time() - 60*5;
+	// List the older feeds (that hasn't been loaded since x minutes)
+	$date = time() - 60 * $REFRESH_INTERVAL;
 	$select = $mysql->prepare("SELECT feed_id, feed_url, feed_date FROM feeds WHERE feed_date < :date ORDER BY feed_date ASC");
 	$select->bindParam(":date", $date);
 	
@@ -26,6 +26,7 @@ try {
 		send_error("Could not list the feeds");
 	
 	// Handle each feed
+	$max_age = time() - 60*60*24*$MAX_ARTICLE_AGE;
 	while($result = $select->fetch()) {
 		$feed_id = $result["feed_id"];
 		$feed_url = $result["feed_url"];
@@ -36,8 +37,8 @@ try {
 		// Get the XML file and check RSS
 		$dom = new DomDocument();
 		if(!$dom->load($feed_url) || (!$dom->getElementsByTagName("rss")->length && !$dom->getElementsByTagName("feed")->length)) {
-			// Change the date, to only try again in 5+10 minutes
-			$date = time() + 60*10;
+			// Change the date, to only try again in x*2 minutes
+			$date = time() + 60 * $REFRESH_INTERVAL * 2;
 			$sql = "UPDATE feeds SET feed_date=".$date;
 			
 			// Change the title if the feed has never been loaded
@@ -64,7 +65,6 @@ try {
 		if(!$articles->length)
 			$articles = $dom->getElementsByTagName("entry");
 		
-		$max_age = time() - 60*60*24*$MAX_ARTICLE_AGE;
 		foreach($articles as $article) {
 			// Get the values
 			$article_title = get_xml_value($article->getElementsByTagName("title"), "No title");

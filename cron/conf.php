@@ -9,10 +9,13 @@ $mysql_base = "mywebrss";
 $mysqldump = "/opt/lampp/bin/mysqldump";
 $backups_dir = "/opt/lampp/htdocs/MyWebRSS/cron/backups";
 
-// The age of articles to be deleted
+// The age of articles to be deleted (in days)
 $MAX_ARTICLE_AGE = 30;
 
-// The age of Tokens to be deleted
+// The age of Tokens to be deleted (in days)
 $MAX_TOKEN_AGE = 7;
+
+// The interval between checks on a feed (in minutes)
+$REFRESH_INTERVAL = 5;
 
 ?>
