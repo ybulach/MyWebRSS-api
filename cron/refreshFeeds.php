@@ -34,6 +34,24 @@ try {
 		
 		send_warning($feed_url);
 		
+		// The execution of this script can be long, and many instances can be running at the same time
+		// So we check again the feed date, to see if another script has modified it
+		$select2 = $mysql->prepare("SELECT feed_id, feed_date FROM feeds WHERE feed_id=:feed");
+		$select2->bindParam(":feed", $feed_id);
+		
+		$execution = $select2->execute();
+		$feed = $select2->fetch();
+		if(!$execution | !$feed) {
+			send_warning("Could not check date");
+			continue;
+		}
+		
+		send_warning($feed["feed_date"]);
+		if($feed["feed_date"] >= $date) {
+			send_warning("Already checked");
+			continue;
+		}
+		
 		// Get the XML file and check RSS
 		$dom = new DomDocument();
 		if(!$dom->load($feed_url) || (!$dom->getElementsByTagName("rss")->length && !$dom->getElementsByTagName("feed")->length)) {
