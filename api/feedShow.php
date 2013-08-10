@@ -50,14 +50,15 @@ try {
 			$json_result["feed"] = $result[0]["feed"];
 		else {
 			// Get the name from the database
-			$select = $mysql->prepare("SELECT feed_title as feed FROM feeds WHERE feed_id=:feed");
+			$select = $mysql->prepare("SELECT feeds.feed_title as feed FROM user_feeds INNER JOIN feeds ON user_feeds.feed_ref=feed_id WHERE user_ref=:user AND feed_ref=:feed");
+			$select->bindParam(":user", $user);
 			$select->bindParam(":feed", $feed);
 			$select->execute();
 			
 			if($feed_title = $select->fetch())
 				$json_result["feed"] = $feed_title["feed"];
 			else
-				$json_result["feed"] = "Feed $feed not loaded";
+				throw new Exception("feed");
 		}
 	}
 	
