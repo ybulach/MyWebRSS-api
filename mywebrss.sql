@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_id` bigint(10) NOT NULL AUTO_INCREMENT,
   `user_email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `user_pass` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  `user_lastlogin` int(10) NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_email` (`user_email`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

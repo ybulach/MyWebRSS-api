@@ -24,8 +24,8 @@ try {
 	
 	$user = $result["user_id"];
 	
-	// Create a new Token, expiring in 30 days
-	$date = time()+60*60*24*30;
+	// Create a new Token
+	$date = time();
 	$token = sha1($_GET["email"].$date.$user);
 	
 	$insert = $mysql->prepare("INSERT INTO tokens(token_id, user_ref, token_date) VALUES(:token, :user, :date)");
@@ -35,6 +35,12 @@ try {
 	
 	if(!$insert->execute())
 		throw new Exception("Can not create a new Token. Try again later");
+	
+	// Update last connection time
+	$update = $mysql->prepare("UPDATE users SET user_lastlogin=:date WHERE user_ref=:user");
+	$update->bindParam(":date", $date);
+	$update->bindParam(":user", $user);
+	$update->execute();
 	
 	$json_result["token"] = $token;
 }
