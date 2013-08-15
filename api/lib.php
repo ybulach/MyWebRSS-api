@@ -110,7 +110,7 @@ function check_token($token) {
 	$update->bindParam(":id", $id);
 	$update->execute();
 	
-	$update = $mysql->prepare("UPDATE users SET user_lastlogin=:date WHERE user_ref=:id");
+	$update = $mysql->prepare("UPDATE users SET user_lastlogin=:date WHERE user_id=:id");
 	$update->bindParam(":date", $date);
 	$update->bindParam(":id", $id);
 	$update->execute();

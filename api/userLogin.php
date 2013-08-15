@@ -37,7 +37,7 @@ try {
 		throw new Exception("Can not create a new Token. Try again later");
 	
 	// Update last connection time
-	$update = $mysql->prepare("UPDATE users SET user_lastlogin=:date WHERE user_ref=:user");
+	$update = $mysql->prepare("UPDATE users SET user_lastlogin=:date WHERE user_id=:user");
 	$update->bindParam(":date", $date);
 	$update->bindParam(":user", $user);
 	$update->execute();
