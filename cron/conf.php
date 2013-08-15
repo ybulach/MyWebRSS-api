@@ -15,6 +15,9 @@ $MAX_ARTICLE_AGE = 30;
 // The age of Tokens to be deleted (in days)
 $MAX_TOKEN_AGE = 7;
 
+// The age of inactive users to be deleted (in days)
+$MAX_INACTIVE_USER_AGE = 60;
+
 // The interval between checks on a feed (in minutes)
 $REFRESH_INTERVAL = 5;
 
