@@ -87,50 +87,38 @@ function check_email($email) {
 function check_token() {
 	global $mysql;
 	
-	if(!isset($_GET["token"]))
+	if(!isset($_GET["token"]) || !check_arg($_GET["token"], "#^[a-z0-9]+$#", 40, 40))
 		throw new Exception("token");
 	
 	$token = $_GET["token"];
 	
-	$user = json_decode("{id: 0, email: ''}");
-	$user->id = 0;
-	$user->email = "";
-	
-	// Get the email address from Persona
-	$persona = new Persona();
-	$result = $persona->verifyAssertion($token);
-	if($result->status !== 'okay') {
-		if($result->reason == "assertion has expired")
-			throw new Exception("token");
-		else
-			throw new Exception($result->reason);
-	}
-	
-	$user->email = $result->email;
-	
-	// Check the existance of the email address in the database
-	$select = $mysql->prepare("SELECT user_id FROM users WHERE user_email=:email LIMIT 1");
-	$select->bindParam(":email", $user->email);
-	
-	if(!$select->execute())
+	// Try to find the Token
+	$select = $mysql->prepare("SELECT user_ref FROM tokens WHERE token_id=:token LIMIT 1");
+	$select->bindParam(":token", $token);
+	$success = $select->execute();
+	if(!$success)
 		throw new Exception("Could not get the account informations. Try again later");
-	
-	// Check the ID
 	$result = $select->fetch();
 	if(!$result)
-		$user->id = 0;
-	else {
-		$user->id = $result["user_id"];
-		
-		// Change the date of the last login
-		$time = time();
-		$update = $mysql->prepare("UPDATE users SET user_lastlogin=:time WHERE user_id=:id");
-		$update->bindParam(":time", $time);
-		$update->bindParam(":id", $user->id);
-		$update->execute();
-	}
+		throw new Exception("token");
 	
-	return $user;
+	$id = $result["user_ref"];
+	
+	// Change the date of the Token
+	$time = time();
+	$update = $mysql->prepare("UPDATE tokens SET token_date=:time WHERE token_id=:token AND user_ref=:id");
+	$update->bindParam(":time", $time);
+	$update->bindParam(":token", $token);
+	$update->bindParam(":id", $id);
+	$update->execute();
+	
+	// Change the date of the last login
+	$update = $mysql->prepare("UPDATE users SET user_lastlogin=:time WHERE user_id=:id");
+	$update->bindParam(":time", $time);
+	$update->bindParam(":id", $user->id);
+	$update->execute();
+	
+	return $id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

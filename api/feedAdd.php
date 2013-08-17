@@ -3,8 +3,7 @@ require_once("lib.php");
 
 try {
 	// Check the arguments
-	$result = check_token();
-	$user = $result->id;
+	$user = check_token();
 	
 	if(!isset($_GET["feed"]) || !check_arg($_GET["feed"], "#^(http|https)\://[a-zA-Z0-9\-\.]+(/\S*)?$#", 7, 255))
 		throw new Exception("feed");
