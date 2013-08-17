@@ -7,7 +7,7 @@ try {
 		throw new Exception("assertion");
 	
 	// Get the email address from Persona
-	$persona = new Persona();
+	$persona = new Persona($PERSONA_AUDIENCE);
 	$result = $persona->verifyAssertion($_GET["assertion"]);
 	if($result->status !== 'okay') {
 		if($result->reason == "assertion has expired")
