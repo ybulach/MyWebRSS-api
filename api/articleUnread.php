@@ -4,6 +4,7 @@ require_once("lib.php");
 try {
 	// Check the arguments
 	$result = check_token();
+	$user = $result->id;
 	
 	if(!isset($_GET["article"]) || !check_arg($_GET["article"], "#^[0-9]+$#", 1, 10))
 		throw new Exception("article");
