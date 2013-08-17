@@ -25,18 +25,9 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   UNIQUE KEY `feed_url` (`feed_url`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `tokens` (
-  `token_id` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
-  `user_ref` bigint(10) NOT NULL,
-  `token_date` int(10) NOT NULL,
-  PRIMARY KEY (`token_id`),
-  KEY `user_ref` (`user_ref`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` bigint(10) NOT NULL AUTO_INCREMENT,
   `user_email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `user_pass` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   `user_lastlogin` int(10) NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_email` (`user_email`)

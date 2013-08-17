@@ -17,9 +17,6 @@
 	
 	# Users rewrites
 	RewriteRule ^user/login$ userLogin.php [L]
-	RewriteRule ^user/logout$ userLogout.php [L]
-	RewriteRule ^user/password$ userPassword.php [L]
-	RewriteRule ^user/signin$ userSignin.php [L]
 </IfModule>
 
 <IfModule mod_headers.c>

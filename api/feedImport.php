@@ -3,7 +3,7 @@ require_once("lib.php");
 
 try {
 	// Check the arguments
-	$user = check_token($_POST["token"]);
+	$result = check_token();
 	
 	// Get the XML file and check RSS
 	$dom = new DomDocument();

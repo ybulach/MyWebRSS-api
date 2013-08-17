@@ -3,7 +3,7 @@ require_once("lib.php");
 
 try {
 	// Check the arguments
-	$user = check_token($_GET["token"]);
+	$result = check_token();
 	
 	// Get the feeds
 	$select = $mysql->prepare("SELECT feed_id as id, feed_title as title, feed_description as description, feed_error as error FROM user_feeds INNER JOIN feeds ON feed_id=feed_ref WHERE user_ref=:user ORDER BY feed_title ASC");
