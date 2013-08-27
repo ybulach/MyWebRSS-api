@@ -47,7 +47,7 @@ function check_token() {
 	// Change the date of the last login
 	$update = $mysql->prepare("UPDATE users SET user_lastlogin=:time WHERE user_id=:id");
 	$update->bindParam(":time", $time);
-	$update->bindParam(":id", $user->id);
+	$update->bindParam(":id", $id);
 	$update->execute();
 	
 	return $id;
