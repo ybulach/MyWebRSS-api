@@ -68,4 +68,4 @@ ALTER TABLE `user_articles`
 
 ALTER TABLE `user_feeds`
   ADD CONSTRAINT `user_feeds_ibfk_1` FOREIGN KEY (`user_ref`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `user_feeds_ibfk_3` FOREIGN KEY (`feed_ref`) REFERENCES `feeds` (`feed_id`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `user_feeds_ibfk_3` FOREIGN KEY (`feed_ref`) REFERENCES `feeds` (`feed_id`) ON DELETE CASCADE ON UPDATE CASCADE;
