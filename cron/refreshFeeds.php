@@ -19,7 +19,7 @@ function get_xml_value($element, $default_value) {
 try {
 	// List the older feeds (that hasn't been loaded since x minutes)
 	$date = time() - 60 * $REFRESH_INTERVAL;
-	$select = $mysql->prepare("SELECT feed_id, feed_url, feed_date FROM feeds WHERE feed_date < :date ORDER BY feed_date ASC");
+	$select = $mysql->prepare("SELECT feed_id, feed_url, feed_date, feed_error FROM feeds WHERE feed_date < :date ORDER BY feed_date ASC");
 	$select->bindParam(":date", $date);
 	
 	if(!$select->execute())
@@ -31,6 +31,7 @@ try {
 		$feed_id = $result["feed_id"];
 		$feed_url = $result["feed_url"];
 		$feed_date = $result["feed_date"];
+		$feed_error = $result["feed_error"];
 		
 		send_warning($feed_url);
 		
@@ -63,7 +64,11 @@ try {
 			if($feed_date == 0)
 				$sql .= ", feed_title='**NOT AN RSS FEED**', feed_description='This feed returns errors for more than 2 hours'";
 			
-			$sql .= ", feed_error=1 WHERE feed_id=:id";
+			// Set the time of the error (used to delete feeds that are wrong for to long)
+			if($feed_error == 0)
+				$sql .= ", feed_error=".time();
+			
+			$sql .= " WHERE feed_id=:id";
 			
 			$update = $mysql->prepare($sql);
 			$update->bindParam(":id", $feed_id);

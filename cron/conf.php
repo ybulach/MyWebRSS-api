@@ -21,4 +21,7 @@ $MAX_INACTIVE_USER_AGE = 60;
 // The interval between checks on a feed (in minutes)
 $REFRESH_INTERVAL = 5;
 
+// The maximum time (in days) for keeping wrong feeds and trying to refresh them
+$WRONG_FEED_TIME = 15;
+
 ?>
