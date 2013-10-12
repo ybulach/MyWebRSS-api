@@ -54,6 +54,27 @@ function check_token() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Check a Persona assertion
+function check_persona() {
+	global $PERSONA_AUDIENCE;
+	
+	if(!isset($_GET["assertion"]))
+		throw new Exception("assertion");
+	
+	// Get the email address from Persona
+	$persona = new Persona($PERSONA_AUDIENCE);
+	$result = $persona->verifyAssertion($_GET["assertion"]);
+	if($result->status !== 'okay') {
+		if($result->reason == "assertion has expired")
+			throw new Exception("assertion");
+		else
+			throw new Exception($result->reason);
+	}
+	
+	return $result->email;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Send an error result
 function send_error($error) {
 	$error_result["success"] = 0;
