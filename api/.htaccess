@@ -2,8 +2,8 @@
 	RewriteEngine On
 	
 	# Force HTTPS
-	RewriteCond %{SERVER_PORT} 80 
-	RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R,L]
+	#RewriteCond %{SERVER_PORT} 80 
+	#RewriteRule ^(.*)$ https://%{SERVER_NAME}%{REQUEST_URI} [R,L]
 	
 	# Feeds rewrites
 	RewriteRule ^feed/add$ feedAdd.php [L]
