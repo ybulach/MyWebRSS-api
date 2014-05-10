@@ -18,8 +18,8 @@ You only need to configure the **api/** folder in your web server. For example, 
 		ServerName api.domain.com
 		DocumentRoot /var/www/MyWebRSS-api/api
 		<Directory /var/www/MyWebRSS-api/api>
-			Options -Indexes -FollowSymLinks MultiViews
-			AllowOverride None
+			Options -Indexes FollowSymLinks MultiViews
+			AllowOverride All
 			Order allow,deny
 			allow from all
 		</Directory>
@@ -33,12 +33,12 @@ If you want to force SSL to access **api/**, you may want to uncomment this line
 The scripts in the **cron/** folder need to be executed periodically:
 
 	# m h  dom mon dow   command
-	* * * * * php /var/www/MyWebRSS-api/cron/refreshFeeds.php > /dev/null 2>&1
-	#0 0 * * * php /var/www/MyWebRSS-api/cron/backup.php > /dev/null 2>&1			Optional
-	#0 * * * * php /var/www/MyWebRSS-api/cron/cleanArticles.php > /dev/null 2>&1	Optional
-	#0 * * * * php /var/www/MyWebRSS-api/cron/cleanFeeds.php > /dev/null 2>&1		Optional
-	#0 * * * * php /var/www/MyWebRSS-api/cron/cleanTokens.php > /dev/null 2>&1		Optional
-	#0 * * * * php /var/www/MyWebRSS-api/cron/cleanUsers.php > /dev/null 2>&1		Optional
+	* * * * * cd /var/www/MyWebRSS-api/cron/ && php refreshFeeds.php > /dev/null 2>&1
+	#0 0 * * * cd /var/www/MyWebRSS-api/cron/ && php backup.php > /dev/null 2>&1			Optional
+	#0 * * * * cd /var/www/MyWebRSS-api/cron/ && php cleanArticles.php > /dev/null 2>&1	Optional
+	#0 * * * * cd /var/www/MyWebRSS-api/cron/ && php cleanFeeds.php > /dev/null 2>&1		Optional
+	#0 * * * * cd /var/www/MyWebRSS-api/cron/ && php cleanTokens.php > /dev/null 2>&1		Optional
+	#0 * * * * cd /var/www/MyWebRSS-api/cron/ && php cleanUsers.php > /dev/null 2>&1		Optional
 	
 To use the **cron/backup.php** script, you have to set your **mysqldump** executable path and the backup directory in **config.inc.php**:
 
