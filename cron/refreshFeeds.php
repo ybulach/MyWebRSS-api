@@ -11,9 +11,12 @@ function get_xml_item($element) {
 	return $element->item(0);
 }
 
-function get_xml_value($element, $default_value) {
+function get_xml_value($element, $default_value, $attribute = "url") {
 	$value = get_xml_item($element);
-	return $value ? $value->nodeValue : $default_value;
+	if(!$value)
+		return $default_value;
+	
+	return $value->nodeValue ? : $value->getAttribute($attribute);
 }
 
 try {
@@ -91,7 +94,14 @@ try {
 		foreach($articles as $article) {
 			// Get the values
 			$article_title = get_xml_value($article->getElementsByTagName("title"), "No title");
+			
+			// <image>
 			$article_image = get_xml_value($article->getElementsByTagName("image"), "");
+			if(!$article_image)
+				// <enclosure>
+				$article_image = get_xml_value($article->getElementsByTagName("enclosure"), "", "url");
+			
+			echo $article_image;
 			
 			// <pubDate>
 			$article_date = get_xml_value($article->getElementsByTagName("pubDate"), "");
