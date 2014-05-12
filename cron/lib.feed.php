@@ -111,10 +111,8 @@ class FeedLoader
 			return false;
 		
 		// Check values
-		if(!$this->feed->date)
-			$this->feed->date = time();
-		else
-			$this->feed->date = strtotime($this->feed->date);
+		$this->feed->date = $this->feed->date ? strtotime($this->feed->date) : time();
+		$this->feed->buildDate = $this->feed->buildDate ? strtotime($this->feed->buildDate) : time();
 		
 		// Get image
 		$image = $this->get_xml_element($channel, "image");
@@ -142,20 +140,17 @@ class FeedLoader
 			$tmp_item->comments = $this->get_xml_value($item, "comments");
 			$tmp_item->description = $this->get_xml_value($item, "description");
 			$tmp_item->guid = $this->get_xml_value($item, "guid");
-			$tmp_item->link = $this->get_xml_value($item, "link");
+			$tmp_item->url = $this->get_xml_value($item, "link");
 			$tmp_item->date = $this->get_xml_value($item, "pubDate");
 			$tmp_item->source = $this->get_xml_value($item, "source");
 			$tmp_item->title = $this->get_xml_value($item, "title");
 			
 			// Check required
-			if(!$tmp_item->description || !$tmp_item->link || !$tmp_item->title)
+			if(!$tmp_item->description || !$tmp_item->url || !$tmp_item->title)
 				continue;
 			
 			// Check values
-			if(!$tmp_item->date)
-				$tmp_item->date = time();
-			else
-				$tmp_item->date = strtotime($tmp_item->date);
+			$tmp_item->date = $tmp_item->date ? strtotime($tmp_item->date) : time();
 			
 			// Get enclosure
 			$enclosure = $this->get_xml_element($item, "enclosure");

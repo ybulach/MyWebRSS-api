@@ -90,7 +90,7 @@ try {
 			
 			// Add the article
 			$insert = $mysql->prepare("INSERT INTO articles(article_id, article_url, feed_ref, article_guid, article_title, article_description, article_image, article_date) VALUES(NULL, :url, :feed, :guid, :title, :description, :image, :date)");
-			$insert->bindParam(":url", $article->link, PDO::PARAM_STR);
+			$insert->bindParam(":url", $article->url, PDO::PARAM_STR);
 			$insert->bindParam(":feed", $feed_id, PDO::PARAM_INT);
 			$insert->bindParam(":guid", $article->guid, PDO::PARAM_STR);
 			$insert->bindParam(":title", $article->title, PDO::PARAM_STR);
