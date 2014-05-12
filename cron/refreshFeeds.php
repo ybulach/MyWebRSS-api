@@ -2,22 +2,7 @@
 // Script to run every minutes
 ///////////////////////////////////////////////////////////////////////////////
 require_once("lib.php");
-
-// Get the element value or return $default_value
-function get_xml_item($element) {
-	if(!$element->length)
-		return null;
-	
-	return $element->item(0);
-}
-
-function get_xml_value($element, $default_value, $attribute = "url") {
-	$value = get_xml_item($element);
-	if(!$value)
-		return $default_value;
-	
-	return $value->nodeValue ? : $value->getAttribute($attribute);
-}
+require_once("lib.feed.php");
 
 try {
 	// List the older feeds (that hasn't been loaded since x minutes)
@@ -44,21 +29,21 @@ try {
 		$select2->bindParam(":feed", $feed_id);
 		
 		$execution = $select2->execute();
-		$feed = $select2->fetch();
-		if(!$execution | !$feed) {
+		$feed_db = $select2->fetch();
+		if(!$execution | !$feed_db) {
 			send_warning("Could not check date");
 			continue;
 		}
 		
-		send_warning($feed["feed_date"]);
-		if($feed["feed_date"] >= $date) {
+		send_warning($feed_db["feed_date"]);
+		if($feed_db["feed_date"] >= $date) {
 			send_warning("Already checked");
 			continue;
 		}
 		
-		// Get the XML file and check RSS
-		$dom = new DomDocument();
-		if(!$dom->load($feed_url) || (!$dom->getElementsByTagName("rss")->length && !$dom->getElementsByTagName("feed")->length)) {
+		// Get the Feed
+		$feedloader = new FeedLoader();
+		if(!$feedloader->load($feed_url)) {
 			// Change the date, to only try again in x*2 minutes
 			$date = time() + 60 * $REFRESH_INTERVAL * 2;
 			$sql = "UPDATE feeds SET feed_date=".$date;
@@ -82,78 +67,21 @@ try {
 			continue;
 		}
 		
-		// Refresh the feed properties
-		$feed_title = get_xml_value($dom->getElementsByTagName("title"), "No title");
-		$feed_description = get_xml_value($dom->getElementsByTagName("description"), "No description");
-		
-		// Get all the articles in the RSS
-		$articles = $dom->getElementsByTagName("item");
-		if(!$articles->length)
-			$articles = $dom->getElementsByTagName("entry");
-		
+		// Get all the articles
+		$articles = $feedloader->getItems();
 		foreach($articles as $article) {
-			// Get the values
-			$article_title = get_xml_value($article->getElementsByTagName("title"), "No title");
-			
-			// <image>
-			$article_image = get_xml_value($article->getElementsByTagName("image"), "");
-			if(!$article_image)
-				// <enclosure>
-				$article_image = get_xml_value($article->getElementsByTagName("enclosure"), "", "url");
-			
-			echo $article_image;
-			
-			// <pubDate>
-			$article_date = get_xml_value($article->getElementsByTagName("pubDate"), "");
-			if(!$article_date)
-				// <a10:updated>
-				$article_date = get_xml_value($article->getElementsByTagNameNS("http://www.w3.org/2005/Atom", "updated"), "");
-			if(!$article_date)
-				// <updated>
-				$article_date = get_xml_value($article->getElementsByTagName("updated"), "");
-			
-			if(!$article_date)
-				$article_date = time();
-			else
-				$article_date = strtotime($article_date);
-			
 			// Don't handle old articles
-			if($article_date && ($article_date < $max_age))
+			if($article->date && ($article->date < $max_age))
 				continue;
 			
-			// <guid>
-			$article_guid = get_xml_value($article->getElementsByTagName("guid"), "");
-			if(!$article_guid)
-				// <id>
-				$article_guid = get_xml_value($article->getElementsByTagName("id"), "");
-			
-			// <link>
-			$url = get_xml_item($article->getElementsByTagName("link"));
-			if($url) {
-				$article_url = $url->nodeValue;
-				if(!$article_url && $url->hasAttribute("href"))
-					// <link href="">
-					$article_url = $url->getAttribute("href");
-			}
-			
-			if(!$article_guid) {
-				if($article_url)
-					$article_guid = $article_url;
-				else {
-					send_warning("error > $article_title = No GUID or URL");
-					continue;
-				}
-			}
-			
-			// <description>
-			$article_description = get_xml_value($article->getElementsByTagName("description"), "");
-			if(!$article_description)
-				// <content>
-				$article_description = get_xml_value($article->getElementsByTagName("content"), "");
+			// Get image
+			$article_image = "";
+			if($article->enclosure && (strpos($article->enclosure->type, "image") === 0))
+				$article_image = $article->enclosure->url;
 			
 			// Check if the article exists
 			$select2 = $mysql->prepare("SELECT article_id FROM articles WHERE article_guid=:guid AND feed_ref=:feed");
-			$select2->bindParam(":guid", $article_guid);
+			$select2->bindParam(":guid", $article->guid);
 			$select2->bindParam(":feed", $feed_id);
 			$select2->execute();
 			
@@ -162,18 +90,21 @@ try {
 			
 			// Add the article
 			$insert = $mysql->prepare("INSERT INTO articles(article_id, article_url, feed_ref, article_guid, article_title, article_description, article_image, article_date) VALUES(NULL, :url, :feed, :guid, :title, :description, :image, :date)");
-			$insert->bindParam(":url", $article_url, PDO::PARAM_STR);
+			$insert->bindParam(":url", $article->link, PDO::PARAM_STR);
 			$insert->bindParam(":feed", $feed_id, PDO::PARAM_INT);
-			$insert->bindParam(":guid", $article_guid, PDO::PARAM_STR);
-			$insert->bindParam(":title", $article_title, PDO::PARAM_STR);
-			$insert->bindParam(":description", $article_description, PDO::PARAM_STR);
+			$insert->bindParam(":guid", $article->guid, PDO::PARAM_STR);
+			$insert->bindParam(":title", $article->title, PDO::PARAM_STR);
+			$insert->bindParam(":description", $article->description, PDO::PARAM_STR);
 			$insert->bindParam(":image", $article_image, PDO::PARAM_STR);
-			$insert->bindParam(":date", $article_date, PDO::PARAM_INT);
-			$insert->execute();
+			$insert->bindParam(":date", $article->date, PDO::PARAM_INT);
+			if(!$insert->execute()) {
+				send_warning("Could not insert the article ".$article->guid);
+				continue;
+			}
 			
 			// Get the article ID
 			$select2 = $mysql->prepare("SELECT article_id FROM articles WHERE article_guid=:guid AND feed_ref=:feed");
-			$select2->bindParam(":guid", $article_guid);
+			$select2->bindParam(":guid", $article->guid);
 			$select2->bindParam(":feed", $feed_id);
 			$select2->execute();
 			
@@ -194,14 +125,17 @@ try {
 				}
 			}
 			
-			send_warning("added > $article_title ($article_guid) $article_date");
+			send_warning("added > {$article->title} ({$article->guid}) {$article->date}");
 		}
+		
+		// Get the feed infos
+		$feed = $feedloader->getFeed();
 		
 		// Change the date of the feed
 		$date = time();
 		$update = $mysql->prepare("UPDATE feeds SET feed_title=:title, feed_description=:description, feed_date=:date, feed_error=0 WHERE feed_id=:id");
-		$update->bindParam(":title", $feed_title);
-		$update->bindParam(":description", $feed_description);
+		$update->bindParam(":title", $feed->title);
+		$update->bindParam(":description", $feed->description);
 		$update->bindParam(":date", $date);
 		$update->bindParam(":id", $feed_id);
 		
