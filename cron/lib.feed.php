@@ -99,14 +99,14 @@ class FeedLoader
 			return false;
 		
 		// Get the channel elements
-		$this->feed->description = $this->get_xml_value($channel, "description");
+		$this->feed->description = $this->get_xml_value($channel, "description", null);
 		$this->feed->buildDate = $this->get_xml_value($channel, "lastBuildDate");
-		$this->feed->url = $this->get_xml_value($channel, "link");
-		$this->feed->title = $this->get_xml_value($channel, "title");
+		$this->feed->url = $this->get_xml_value($channel, "link", null);
+		$this->feed->title = $this->get_xml_value($channel, "title", null);
 		$this->feed->date = $this->get_xml_value($channel, "pubDate");
 		
 		// Check required
-		if(!$this->feed->description || !$this->feed->url || !$this->feed->title)
+		if(($this->feed->description === null) || ($this->feed->url === null) || ($this->feed->title === null))
 			return false;
 		
 		// Check values
@@ -119,12 +119,12 @@ class FeedLoader
 		{
 			$tmp_image = new FeedImage();
 			
-			$tmp_image->link = $this->get_xml_value($image, "link");
-			$tmp_image->title = $this->get_xml_value($image, "title");
-			$tmp_image->url = $this->get_xml_value($image, "url");
+			$tmp_image->link = $this->get_xml_value($image, "link", null);
+			$tmp_image->title = $this->get_xml_value($image, "title", null);
+			$tmp_image->url = $this->get_xml_value($image, "url", null);
 			
 			// Check required
-			if($tmp_image->link && $tmp_image->title && $tmp_image->url)
+			if(($tmp_image->link !== null) && ($tmp_image->title !== null) && ($tmp_image->url !== null))
 				$this->feed->image = $tmp_image;
 		}
 		
@@ -136,14 +136,14 @@ class FeedLoader
 			
 			// Get the item elements
 			$tmp_item->author = $this->get_xml_value($item, "author");
-			$tmp_item->description = $this->get_xml_value($item, "description");
+			$tmp_item->description = $this->get_xml_value($item, "description", null);
 			$tmp_item->guid = $this->get_xml_value($item, "guid");
-			$tmp_item->url = $this->get_xml_value($item, "link");
+			$tmp_item->url = $this->get_xml_value($item, "link", null);
 			$tmp_item->date = $this->get_xml_value($item, "pubDate");
-			$tmp_item->title = $this->get_xml_value($item, "title");
+			$tmp_item->title = $this->get_xml_value($item, "title", null);
 			
 			// Check required
-			if(!$tmp_item->description || !$tmp_item->url || !$tmp_item->title)
+			if(($tmp_item->description === null) || ($tmp_item->url === null) || ($tmp_item->title === null))
 				continue;
 			
 			// Check values
@@ -177,8 +177,8 @@ class FeedLoader
 		// Get the channel elements
 		$this->feed->description = $this->get_xml_value($parent, "subtitle");
 		$this->feed->buildDate = $this->get_xml_value($parent, "updated");
-		$this->feed->title = $this->get_xml_value($parent, "title");
-		$this->feed->date = $this->get_xml_value($parent, "updated");
+		$this->feed->title = $this->get_xml_value($parent, "title", null);
+		$this->feed->date = $this->get_xml_value($parent, "updated", null);
 		
 		// Get the url
 		$links = $this->get_xml_elements($parent, "link");
@@ -191,10 +191,10 @@ class FeedLoader
 			}
 		}
 		if(!$this->feed->url)
-			$this->feed->url =  $this->get_xml_value($parent, "id");
+			$this->feed->url =  $this->get_xml_value($parent, "id", null);
 		
 		// Check required
-		if(!$this->feed->date || !$this->feed->url || !$this->feed->title)
+		if(($this->feed->date === null) || ($this->feed->url === null) || ($this->feed->title === null))
 			return false;
 		
 		// Check values
@@ -208,9 +208,9 @@ class FeedLoader
 			$tmp_item = new Item();
 			
 			// Get the item elements
-			$tmp_item->guid = $this->get_xml_value($item, "id");
-			$tmp_item->date = $this->get_xml_value($item, "published");
-			$tmp_item->title = $this->get_xml_value($item, "title");
+			$tmp_item->guid = $this->get_xml_value($item, "id", null);
+			$tmp_item->date = $this->get_xml_value($item, "published", null);
+			$tmp_item->title = $this->get_xml_value($item, "title", null);
 			
 			// Get the description
 			$tmp_item->description = $this->get_xml_value($item, "content");
@@ -234,7 +234,7 @@ class FeedLoader
 			}
 			
 			// Check required
-			if(!$tmp_item->date || !$tmp_item->guid || !$tmp_item->title)
+			if(($tmp_item->date === null) || ($tmp_item->guid === null) || ($tmp_item->title === null))
 				continue;
 			
 			// Check values
@@ -251,6 +251,7 @@ class FeedLoader
 					$tmp_enclosure->type = $link->getAttribute("type");
 					$tmp_enclosure->url = $link->getAttribute("href");
 					
+					// Check required
 					if($tmp_enclosure->length && $tmp_enclosure->type && $tmp_enclosure->url)
 						$tmp_item->enclosure = $tmp_enclosure;
 					
@@ -297,10 +298,10 @@ class FeedLoader
 	
 	// Get a single XML element value
 	// Returns: string
-	private function get_xml_value($parent, $element_name)
+	private function get_xml_value($parent, $element_name, $default_value = "")
 	{
 		$element = $this->get_xml_element($parent, $element_name);
-		return $element ? $element->nodeValue : "";
+		return $element ? $element->nodeValue : $default_value;
 	}
 }
 ?>
