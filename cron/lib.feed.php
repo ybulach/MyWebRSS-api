@@ -23,12 +23,10 @@ class FeedImage
 class Item
 {
 	public $author = "";
-	public $comments = "";
 	public $description = "";
 	public $guid = "";
 	public $url = "";
 	public $date = "";
-	public $source = "";
 	public $title = "";
 	public $enclosure = null;
 }
@@ -68,7 +66,7 @@ class FeedLoader
 			return true;
 		
 		// Load Atom
-		$atom = $this->get_xml_element($this->dom, "atom");
+		$atom = $this->get_xml_element($this->dom, "feed");
 		if($atom && $this->loadAtom($atom))
 			return true;
 		
@@ -136,13 +134,11 @@ class FeedLoader
 			$tmp_item = new Item();
 			
 			// Get the item elements
-			$tmp_item->author = $this->get_xml_value($item, "link");
-			$tmp_item->comments = $this->get_xml_value($item, "comments");
+			$tmp_item->author = $this->get_xml_value($item, "author");
 			$tmp_item->description = $this->get_xml_value($item, "description");
 			$tmp_item->guid = $this->get_xml_value($item, "guid");
 			$tmp_item->url = $this->get_xml_value($item, "link");
 			$tmp_item->date = $this->get_xml_value($item, "pubDate");
-			$tmp_item->source = $this->get_xml_value($item, "source");
 			$tmp_item->title = $this->get_xml_value($item, "title");
 			
 			// Check required
@@ -177,29 +173,123 @@ class FeedLoader
 	// Returns: bool
 	private function loadAtom($parent)
 	{
-		// TODO
-		return false;
+		// Get the channel elements
+		$this->feed->description = $this->get_xml_value($parent, "subtitle");
+		$this->feed->buildDate = $this->get_xml_value($parent, "updated");
+		$this->feed->title = $this->get_xml_value($parent, "title");
+		$this->feed->date = $this->get_xml_value($parent, "updated");
+		
+		// Get the url
+		$links = $this->get_xml_elements($parent, "link");
+		foreach($links as $link)
+		{
+			if($link->getAttribute("rel") == "alternate")
+			{
+				$this->feed->url = $link->getAttribute("href");
+				break;
+			}
+		}
+		
+		// Check required
+		if(!$this->feed->description || !$this->feed->url || !$this->feed->title)
+			return false;
+		
+		// Check values
+		$this->feed->date = $this->feed->date ? strtotime($this->feed->date) : time();
+		$this->feed->buildDate = $this->feed->buildDate ? strtotime($this->feed->buildDate) : time();
+		
+		// Load the items
+		$items = $this->get_xml_elements($parent, "entry");
+		foreach($items as $item)
+		{
+			$tmp_item = new Item();
+			
+			// Get the item elements
+			$tmp_item->guid = $this->get_xml_value($item, "id");
+			$tmp_item->date = $this->get_xml_value($item, "published");
+			$tmp_item->title = $this->get_xml_value($item, "title");
+			
+			// Get the description
+			$tmp_item->description = $this->get_xml_value($item, "content");
+			if(!$tmp_item->description)
+				$tmp_item->description = $this->get_xml_value($item, "summary");
+			
+			// Get the author
+			$author = $this->get_xml_element($item, "author");
+			if($author && ($author_name = $this->get_xml_value($author, "name")))
+				$tmp_item->author = $author_name;
+			
+			// Get the url
+			$links = $this->get_xml_elements($item, "link");
+			foreach($links as $link)
+			{
+				if($link->getAttribute("rel") == "alternate")
+				{
+					$tmp_item->url = $link->getAttribute("href");
+					break;
+				}
+			}
+			
+			// Check required
+			if(!$tmp_item->description || !$tmp_item->url || !$tmp_item->title)
+				continue;
+			
+			// Check values
+			$tmp_item->date = $tmp_item->date ? strtotime($tmp_item->date) : time();
+			
+			// Get enclosure
+			foreach($links as $link)
+			{
+				if($link->getAttribute("rel") == "enclosure")
+				{
+					$tmp_enclosure = new ItemEnclosure();
+					
+					$tmp_enclosure->length = $link->getAttribute("length");
+					$tmp_enclosure->type = $link->getAttribute("type");
+					$tmp_enclosure->url = $link->getAttribute("href");
+					
+					if($tmp_enclosure->length && $tmp_enclosure->type && $tmp_enclosure->url)
+						$tmp_item->enclosure = $tmp_enclosure;
+					
+					break;
+				}
+			}
+			
+			array_push($this->items, $tmp_item);
+		}
+		
+		return true;
 	}
 	
 	////////////////////////////////////////////////////////////////////
+	// Get all XML elements
+	// Returns: array(DomElement)
+	private function get_xml_elements($parent, $elements_name)
+	{
+		$result = array();
+		
+		if(!$parent)
+			return $result;
+		
+		// Get the elements
+		$elements = $parent->getElementsByTagName($elements_name);
+		if(!$elements || !$elements->length)
+			return $result;
+		
+		// Get the child elements
+		foreach($elements as $element)
+			if($element->parentNode == $parent)
+				array_push($result, $element);
+		
+		return $result;
+	}
+	
 	// Get a single XML element
 	// Returns: DomElement
 	private function get_xml_element($parent, $element_name)
 	{
-		if(!$parent)
-			return null;
-		
-		// Get the elements
-		$elements = $parent->getElementsByTagName($element_name);
-		if(!$elements || !$elements->length)
-			return "";
-		
-		// Get the first child value
-		foreach($elements as $element)
-			if($element->parentNode == $parent)
-				return $element;
-		
-		return null;
+		$elements = $this->get_xml_elements($parent, $element_name);
+		return count($elements) ? $elements[0] : null;
 	}
 	
 	// Get a single XML element value
