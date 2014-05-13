@@ -1,6 +1,7 @@
 <?php
 // Get RSS/Atom infos
 // Based on http://www.w3schools.com/rss/default.asp
+// Based on http://atomenabled.org/developers/syndication/
 
 // Basic objects
 class Feed
@@ -189,9 +190,11 @@ class FeedLoader
 				break;
 			}
 		}
+		if(!$this->feed->url)
+			$this->feed->url =  $this->get_xml_value($parent, "id");
 		
 		// Check required
-		if(!$this->feed->description || !$this->feed->url || !$this->feed->title)
+		if(!$this->feed->date || !$this->feed->url || !$this->feed->title)
 			return false;
 		
 		// Check values
@@ -231,7 +234,7 @@ class FeedLoader
 			}
 			
 			// Check required
-			if(!$tmp_item->description || !$tmp_item->url || !$tmp_item->title)
+			if(!$tmp_item->date || !$tmp_item->guid || !$tmp_item->title)
 				continue;
 			
 			// Check values
