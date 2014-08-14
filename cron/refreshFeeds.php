@@ -41,6 +41,18 @@ try {
 			continue;
 		}
 		
+		// Change the date of the feed to prevent concurrent update (used for really big and slow feeds)
+		$date = time();
+		$update = $mysql->prepare("UPDATE feeds SET feed_date=:date WHERE feed_id=:id");
+		$update->bindParam(":date", $date);
+		$update->bindParam(":id", $feed_id);
+		
+		if(!$update->execute())
+		{
+			send_warning("Could not update the feed ".$feed_id);
+			continue;
+		}
+		
 		// Get the Feed
 		$feedloader = new FeedLoader();
 		if(!$feedloader->load($feed_url)) {
