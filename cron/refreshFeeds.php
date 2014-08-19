@@ -4,6 +4,14 @@
 require_once("lib.php");
 require_once("lib.feed.php");
 
+// Count the currently running refreshs
+$current_refreshs = shell_exec("ps aux | egrep -e 'php refreshFeeds\.php$' | wc -l");
+if($current_refreshs > $REFRESH_PROCESSES)
+{
+	send_warning("Maximum number of refresh processes reached");
+	exit();
+}
+
 try {
 	// List the older feeds (that hasn't been loaded since x minutes)
 	$date = time() - 60 * $REFRESH_INTERVAL;

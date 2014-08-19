@@ -30,6 +30,9 @@ $MAX_INACTIVE_USER_AGE = 60;
 // The interval between checks on a feed (in minutes) by cron/refreshFeeds.php
 $REFRESH_INTERVAL = 5;
 
+// The maximum number of concurrent refresh processes by cron/refreshFeeds.php
+$REFRESH_PROCESSES = 2;
+
 // The maximum time (in days) for keeping wrong feeds and trying to refresh them (cron/refreshFeeds.php)
 $WRONG_FEED_TIME = 15;
 
