@@ -14,7 +14,7 @@ class Persona
 	 */
 	public function __construct($audience = NULL)
 	{
-		$this->audience = $audience ?: $this->guessAudience();
+		$this->audience = $audience ?: $_SERVER['HTTP_REFERER'];
 	}
 	
 	/**
@@ -42,16 +42,6 @@ class Persona
 		curl_close($curl);
 		
 		return json_decode($response);
-	}
-	
-	/**
-	 * Guesses the audience from the web server configuration
-	 */
-	protected function guessAudience()
-	{
-		$audience = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-		$audience .= $_SERVER['SERVER_NAME'] . ':'.$_SERVER['SERVER_PORT'];
-		return $audience;
 	}
 }
 ?>
