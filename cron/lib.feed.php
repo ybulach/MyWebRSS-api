@@ -209,8 +209,12 @@ class FeedLoader
 			
 			// Get the item elements
 			$tmp_item->guid = $this->get_xml_value($item, "id", null);
-			$tmp_item->date = $this->get_xml_value($item, "published", null);
 			$tmp_item->title = $this->get_xml_value($item, "title", null);
+
+			// Get the date
+			$tmp_item->date = $this->get_xml_value($item, "published", null);
+			if(!$tmp_item->date)
+				$tmp_item->date = $this->get_xml_value($item, "updated", null);
 			
 			// Get the description
 			$tmp_item->description = $this->get_xml_value($item, "content");
