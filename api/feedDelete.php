@@ -2,6 +2,10 @@
 require_once("lib.php");
 
 try {
+	//--- DISCONTINUED API ---
+	throw new Exception("This API is discontinued. Can't delete feeds.");
+	//--- DISCONTINUED API ---
+
 	// Check the arguments
 	$user = check_token();
 	

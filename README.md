@@ -2,6 +2,8 @@ MyWebRSS-api
 ========
 If you don't want to install it, you can use: https://api.mywebrss.net.
 
+**NOTE: As Persona will shut down on November 30th of 2016, this API has been discontinued.**
+
 PRESENTATION
 ------------
 MyWebRSS-api is a web RSS API initialy made for MyWebRSS webapp (https://github.com/ybulach/MyWebRSS). It is OpenSource and can be installed on every server with PHP and MySQL.

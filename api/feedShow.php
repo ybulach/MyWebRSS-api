@@ -8,7 +8,37 @@ try {
 	if(!isset($_GET["feed"]) || (($_GET["feed"] != 0) && !check_arg($_GET["feed"], "#^[0-9]+$#", 1, 10)))
 		throw new Exception("feed");
 	$feed = $_GET["feed"];
+
+	//--- DISCONTINUED API ---
+	$json_result["result"] = array();
 	
+	$article = array();
+
+	if($feed) {
+		$select = $mysql->prepare("SELECT feed_id, feed_title, feed_url FROM feeds WHERE feed_id=:feed LIMIT 1");
+		$select->bindParam(":feed", $_GET["feed"]);
+		if(!$select->execute())
+			throw new Exception("Could not check the feed. Try again later");
+
+		$result = $select->fetch();
+		if(!$result)
+			throw new Exception("Could not find specified feed");
+
+		$article["title"] = "Your feed URL";
+		$article["description"] = "Due to the end of Mozilla Persona on November 30th of 2016, this API has been discontinued.<br/><br/>You can import your feed on an other API using the URL:<br/><a href='${result["feed_url"]}'>${result["feed_url"]}</a>";
+	}
+	else {
+		$article["title"] = "Discontinued API";
+		$article["description"] = "Due to the end of Mozilla Persona on November 30th of 2016, this API has been discontinued.<br/><br/><b>You can get back the URL of your feed by selecting them in the left menu</b>.";
+	}
+
+	$article["status"] = "";
+	array_push($json_result["result"], $article);
+
+	send_result($json_result);
+	exit(0);
+	//--- DISCONTINUED API ---
+
 	$articles_count = 20;
 	if(isset($_GET["articles_count"])) {
 		if(($_GET["articles_count"] != 0) && !check_arg($_GET["articles_count"], "#^[0-9]+$#", 1, 10))

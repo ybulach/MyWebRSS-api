@@ -28,6 +28,10 @@ try {
 			if($unread)
 				$json_result["result"][$i]["unread"] = $unread["unread"];
 		}
+
+		//--- DISCONTINUED API ---
+		$json_result["result"][$i]["unread"] = 0;
+		//--- DISCONTINUED API ---
 	}
 }
 catch( Exception $e ){
